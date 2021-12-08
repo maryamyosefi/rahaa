@@ -1,0 +1,31 @@
+version: "3.3"
+services:
+  web:
+    image: 'gitlab/gitlab-ce:latest'
+    restart: always
+    hostname: 'gitlab.tools.yosefi.webdevops.ir'
+    environment:
+      GITLAB_OMNIBUS_CONFIG: |
+       external_url 'https://gitlab.tools.yosefi.webdevops.ir'
+       # Add any other gitlab.rb configuration here, each on its own line
+       gitlab_rails['gitlab_shell_ssh_port'] = 2224
+       nginx['redirect_http_to_https'] = true
+       nginx['ssl_certificate'] = "/etc/gitlab/ssl/fullchain.pem"
+       nginx['ssl_certificate_key'] = "/etc/gitlab/ssl/privkey.pem"
+       nginx['ssl_dhparam'] = "/etc/gitlab/ssl/dhparams.pem"
+       registry_nginx['ssl_certificate'] = "/path/to/certificate.pem"
+       registry_nginx['ssl_certificate_key'] = "/path/to/certificate.key"
+
+    volumes:
+      - /path/data:/var/lib/registry
+      - /path/certs:/certs
+      - /path/auth:/auth
+
+    ports:
+      - '80:80'
+      - '443:443'
+      - '2224:22'
+    volumes:
+      - '$GITLAB_HOME/config:/etc/gitlab'
+      - '$GITLAB_HOME/logs:/var/log/gitlab'
+      - '$GITLAB_HOME/data:/var/opt/gitlab'
